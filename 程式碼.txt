@@ -1,0 +1,33 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <title>Webduino Blockly Demo 01</title>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script src="https://webduino.io/components/webduino-js/dist/webduino-all.min.js"></script>
+  <script src="https://blockly.webduino.io/webduino-blockly.js"></script>
+</head>
+<body>
+  <h2 id="show">數值顯示在這邊</h2>  #用於測試時顯示光敏電阻數值
+</body>
+
+
+var photocell;               //宣告光敏電阻
+var $show = $("#show");      //宣告網頁顯示資訊欄位
+boardReady({device: 'BkVXP'}, function (board) { //當控制板準備好時，執行下列程式
+  board.systemReset();                    //控制板重設
+  board.samplingInterval = 250;             //取樣時間
+  photocell = getPhotocell(board, 3);         //將光敏電阻腳位設定為PIN3
+  matrix = getMax7219(board, 7, 8, 9);       //將點矩陣的腳位設定為7,8,9
+  matrix.animateStop();                   
+  matrix.on('0000000000000000');          //將點矩陣的燈號設定為全亮
+  photocell.on(function(val){               //當光敏電阻在接收數值時執行
+    $show.text(val);                      //將數值顯示在網頁上
+    if(val<0.01){                         //如果數值小於0.01，則將點矩陣
+      matrix.on('ffffffffffffffff');              的燈號設定為全亮
+    }else{                              //否則，則將燈號設定為全暗
+      matrix.on('0000000000000000');
+    }
+  });
+});
